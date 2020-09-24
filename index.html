@@ -1,0 +1,131 @@
+<html>
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
+</head>
+
+<body>
+    <main>
+    </main>
+</body>
+
+<script>
+    function randomIntFromInterval(min, max) { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function setup() {
+        const height = 1024;
+        const width = 1024;
+
+        const angle = Math.random();
+        let stepMin = randomIntFromInterval(0, 12);
+        const branches = randomIntFromInterval(100, 500);
+        const start = randomIntFromInterval(100, 999999);
+        const randomStep = randomIntFromInterval(0, 25);
+        let alphaStart = randomIntFromInterval(30, 150);
+        let skip = randomIntFromInterval(1, 4);
+        let alphaStep = (255 - alphaStart) / (branches / skip);
+        let hasCircle = randomIntFromInterval(0, 1) > 0;
+        let lineWeight = randomIntFromInterval(1, 1);
+
+        let redAlpha = randomIntFromInterval(0, 1) > 0;
+        let redAlphaInverted = randomIntFromInterval(0, 1) > 0;
+
+        let blueAlpha = randomIntFromInterval(0, 1) > 0;
+        let blueAlphaInverted = randomIntFromInterval(0, 1) > 0;
+
+        let greenAlpha = randomIntFromInterval(0, 1) > 0;
+        let greenAlphaInverted = randomIntFromInterval(0, 1) > 0;
+
+        let reverseSeq = randomIntFromInterval(0, 1) > 0;
+
+        let filename = (angle + " " + stepMin + " " + branches + " " + start + " " + randomStep + " " + alphaStart  + " " + hasCircle + " " + lineWeight  + " " + reverseSeq);
+
+        createCanvas(width, height);
+        background(color("#3c3c3c"));
+
+        for (let i = 0; i < branches; i += skip) {
+            resetMatrix();
+            let seq = [];
+            let n = start + i;
+            do {
+                if ((n % 2) === 0)
+                    n = n / 2;
+                else
+                    n = ((n * 3) + 1) / 2;
+
+                seq.push(n);
+            } while (n !== 1);
+
+            seq = seq.slice(0, -15);
+
+            if (reverseSeq)
+                seq.reverse();
+
+            if (reverseSeq)
+                translate(width / 2, height);
+            else
+                translate(width / 2, width / 2);
+
+            let alpha = alphaStart;
+            for (let value of seq) {
+                let red = 255;
+                if (redAlpha)
+                    red = alpha;
+                else if (redAlphaInverted)
+                    red = 255 - alpha;
+
+                let blue = 255;
+                if (blueAlpha)
+                    blue = alpha;
+                else if (blueAlphaInverted)
+                    blue = 255 - alpha;
+
+                let green = 255;
+                if (greenAlpha)
+                    green = alpha;
+                else if (greenAlphaInverted)
+                    red = 255 - alpha;
+
+                fill(red, blue, green, (255 - alpha) / 2);
+                stroke(red, blue, green, 255 - alpha);
+                strokeWeight(lineWeight);
+                if ((value % 2) === 0) {
+                    rotate(angle);
+                }
+                else {
+                    rotate(-angle);
+                }
+
+                const step = stepMin + Math.round(Math.random() * randomStep);
+
+                if (hasCircle)
+                    circle(0, 0, 1);
+
+                beginShape();
+                line(0, 0, 0, -step);
+                translate(0, -step);
+                endShape();
+            }
+
+            alphaStart += alphaStep;
+            if (alphaStart > 255) alphaStart = 255;
+            else if (alphaStart < 0) alphaStart = 0;
+
+        }
+
+        var canvas = document.getElementById("defaultCanvas0");
+        // draw to canvas...
+        canvas.toBlob(function (blob) {
+            saveAs(blob, filename + ".png");
+        });
+    }
+
+    function draw() {
+
+    }
+</script>
+
+</html>
